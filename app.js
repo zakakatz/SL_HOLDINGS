@@ -1,7 +1,10 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const connectWalletButton = document.getElementById('connect-wallet');
   
     let userAddress;
+  
+    // Initialize the Rainbow SDK
+    await rainbowSDK.initialize();
   
     async function connectWallet() {
       try {

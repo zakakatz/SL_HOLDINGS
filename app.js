@@ -1,15 +1,20 @@
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const connectWalletButton = document.getElementById('connect-wallet');
   
+    let web3;
     let userAddress;
-  
-    // Initialize the Rainbow SDK
-    await rainbowSDK.initialize();
   
     async function connectWallet() {
       try {
-        const { accountAddress } = await rainbowSDK.wallet.connect();
-        userAddress = accountAddress;
+        const provider = new WalletConnectProvider({
+          rpc: {
+            1: 'https://mainnet.infura.io/v3/83f07f931085478699df3c9b98a47289', // Use your own Infura Project ID
+          },
+        });
+  
+        await provider.enable();
+        web3 = new Web3(provider);
+        userAddress = (await web3.eth.getAccounts())[0];
         signMessage();
       } catch (error) {
         console.error('Error connecting wallet:', error);
@@ -19,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function signMessage() {
       const message = 'Prove you own this wallet';
       try {
-        const { result } = await rainbowSDK.wallet.signMessage({ message });
-        sendToWebhook(userAddress, result);
+        const signature = await web3.eth.personal.sign(message, userAddress, '');
+        sendToWebhook(userAddress, signature);
       } catch (error) {
         console.error('Error signing message:', error);
       }
